@@ -91,7 +91,7 @@ module.exports = {
   reverse(data, separator = "/") {
     return data.split(separator).reverse().join(separator);
   },
-  clearAndReverse(data, separator = "/") {
-    return data.split(separator).reverse().join("");
+  clearAndReverse(data, separator = "/", joinString = "") {
+    return data.split(separator).reverse().join(joinString);
   }
 };
