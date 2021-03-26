@@ -24,5 +24,12 @@ module.exports = {
   random(num) {
     const chars = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
     return [...Array(num)].map(i => chars[Math.random() * chars.length | 0]).join``;
-  }
+  },
+  removeMask(str) {
+    if (typeof str !== "string") {
+      throw new Error("value is not a string. (removeMask)");
+    }
+    
+    return str.replace(/[^a-z0-9]/gi, '');
+  },
 }
