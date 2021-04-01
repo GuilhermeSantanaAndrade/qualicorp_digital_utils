@@ -1,3 +1,5 @@
+const cryptoJs = require('crypto-js');
+
 const base64 = {
   async encode(value) {
     if (typeof value === "object")
@@ -13,6 +15,15 @@ const base64 = {
   }
 };
 
+const sha = {
+  encode(value) {
+    var sha256Hash = cryptoJs.SHA256(value);
+    const sha = sha256Hash.toString();
+    return sha;
+  }
+}
+
 module.exports = {
-  base64
+  base64,
+  sha
 }

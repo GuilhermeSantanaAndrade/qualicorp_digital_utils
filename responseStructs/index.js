@@ -4,6 +4,9 @@ const responseSuccess = function (res, resData, status = 200) {
     message: "OK",
     data: resData
   };
+  
+  res.customData = data;
+  res.customStatus = status;
   return res.status(status).json(data);
 };
 
@@ -12,6 +15,9 @@ const responseError = function (res, err, status = 500) {
     status: status,
     message: err.message || err
   };
+  
+  res.customData = data;
+  res.customStatus = status;
   res.status(status).json(data);
 };
 
