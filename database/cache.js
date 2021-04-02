@@ -4,22 +4,28 @@ const moment = require('moment');
 moment.locale("pt-br");
 
 class RedisCache {
-  constructor(config ) {
+  constructor(config) {
     this.error = "";
     this.active = false;
 
-    this.redis = new Redis(config);
+    if (config.active) {
+      if (!config.port || !config.host) {
+        throw Error("Cache: Configuração inválida.")
+      }
+      
+      this.redis = new Redis(config);
 
-    this.redis.on("error", (error) => {
-      this.error = error.message;
-      this.active = false;
-      console.log(`Cache Provider error on connect. ${this.error}`)
-    });
+      this.redis.on("error", (error) => {
+        this.error = error.message;
+        this.active = false;
+        console.log(`Cache Provider error on connect. ${this.error}`)
+      });
 
-    this.redis.on("connect", () => {
-      this.error = "";
-      this.active = true;
-    })
+      this.redis.on("connect", () => {
+        this.error = "";
+        this.active = true;
+      })
+    }
   }
 
   async save(key, value) {
@@ -188,14 +194,6 @@ class RedisCache {
 exports.getCacheProvider = function (config) {
   if (!config || (typeof config !== "object")) {
     throw Error("Cache: Não foi informada configuração de conexão.")
-  }
-
-  if (config.active !== true) {
-    return;
-  }
-
-  if (!config.port || !config.host) {
-    throw Error("Cache: Configuração inválida.")
   }
   
   const cacheProvider = new RedisCache(config);
