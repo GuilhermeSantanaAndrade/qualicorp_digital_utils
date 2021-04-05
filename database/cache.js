@@ -42,14 +42,20 @@ class RedisCache {
   }
 
   async invalidateAllWithKey(key) {
-    const keys = this.redis.keys(`*${key}*`)
+    let countDeleted = 0;
+
+    const keys = await this.redis.keys(`*${key}*`)
     const pipeline = this.redis.pipeline();
+
+    countDeleted += keys.length;
 
     keys.forEach(key => {
       pipeline.del(key);
     });
 
     pipeline.exec();
+    
+    return countDeleted;
   }
 
   checkCache(cacheOptions) {
@@ -187,6 +193,42 @@ class RedisCache {
         await this.save(key, value);
       } catch (err) {
       }
+    }
+  }
+
+  clearCache(routesConfig) {
+    return async (req, res, next) => {
+      if (!routesConfig || (typeof routesConfig !== "object")) {
+        throw new Error("Não foi informado parâmetro routesConfig.")
+      }
+
+      if (!this.active) {
+        throw new Error("Cache não foi inicializado corretamente. (active = false)")
+      }
+
+      const all = !req.params.guid;
+      let countDeleted = 0;
+
+      for (const httpVerb in routesConfig) {
+        const configs = routesConfig[httpVerb];
+
+        if (typeof configs !== "object") {
+          continue;
+        }
+
+        for (const prop in configs) {
+          const conf = configs[prop];
+
+          if (conf.guid && (all || conf.guid === req.params.guid)) {
+            countDeleted += await this.invalidateAllWithKey(conf.guid);
+          }
+        }
+      }
+      
+      res.json({ 
+        deleted: countDeleted,
+        message: "OK" 
+      })
     }
   }
 }
