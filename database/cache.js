@@ -233,6 +233,23 @@ class RedisCache {
   }
 }
 
+exports.time = {
+  "1min": 60000,
+  "5min": 300000,
+  "10min": 600000,
+  "15min": 900000,
+  "30min": 1800000,
+  "1hour": 3600000,
+  "1day": 86400000,
+  "1week": 604800000,
+  "1month": 2419200000,
+}
+
+exports.types = {
+  ROUTE_CACHE: "route",
+  CQL_CACHE: "cql",
+}
+
 exports.getCacheProvider = function (config) {
   if (!config || (typeof config !== "object")) {
     throw Error("Cache: Não foi informada configuração de conexão.")
@@ -240,4 +257,9 @@ exports.getCacheProvider = function (config) {
   
   const cacheProvider = new RedisCache(config);
   return cacheProvider;
+}
+
+exports.cacheResponse = function (req, res, next) {
+  if (next && req.headers.cacheKey)
+    next();
 }
