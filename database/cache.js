@@ -259,7 +259,7 @@ exports.getCacheProvider = function (config) {
   return cacheProvider;
 }
 
-exports.cacheResponse = function (req, res, next) {
+exports.save = function (req, res, next) {
   if (next && req.headers.cacheKey)
     next();
 }
