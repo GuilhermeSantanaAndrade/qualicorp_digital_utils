@@ -135,7 +135,10 @@ class RedisCache {
         let sha = conversions.hashs.sha.encode(finalJson);
 
         const key = `${cacheOptions.type}|${cacheOptions.name}|${cacheOptions.guid}|${sha}`;
-        req.headers.cacheKey = key;
+        req.headers.cache = {
+          key: key,
+          options: cacheOptions,
+        };
 
         let cache = await this.get(key);
 
@@ -174,25 +177,28 @@ class RedisCache {
     }
   }
 
-  saveCache(cacheOptions) {
-    return async (req, res, next) => {
-      if (!cacheOptions || !this.active || !req.headers.cacheKey || !res.customData) {
-        return;
-      }
+  async saveCache(req, res) {
+    if (
+        !this.active || 
+        !(req.headers.cache && req.headers.cache.options) ||
+        !(req.headers.cache && req.headers.cache.key) || 
+        !res.jsonData
+      ) {
+      return;
+    }
 
-      try {
-        const key = req.headers.cacheKey;
-        const json = res.customData;
-        let value = {
-          timestampGeracao: moment().toDate().getTime(),
-          status: res.customStatus || 200,
-          data: json
-        };
-        value = JSON.stringify(value);
+    try {
+      const key = req.headers.cache.key;
+      const json = res.jsonData;
+      let value = {
+        timestampGeracao: moment().toDate().getTime(),
+        status: res.customStatus || 200,
+        data: json
+      };
+      value = JSON.stringify(value);
 
-        await this.save(key, value);
-      } catch (err) {
-      }
+      await this.save(key, value);
+    } catch (err) {
     }
   }
 
@@ -257,9 +263,4 @@ exports.getCacheProvider = function (config) {
   
   const cacheProvider = new RedisCache(config);
   return cacheProvider;
-}
-
-exports.save = function (req, res, next) {
-  if (next && req.headers.cacheKey)
-    next();
 }
