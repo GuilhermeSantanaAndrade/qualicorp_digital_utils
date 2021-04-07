@@ -1,6 +1,6 @@
 const Redis = require("ioredis");
 const conversions = require("../conversions/index");
-const moment = require('moment');
+const moment = require("moment");
 moment.locale("pt-br");
 
 class RedisCache {
@@ -138,6 +138,7 @@ class RedisCache {
         req.headers.cache = {
           key: key,
           options: cacheOptions,
+          input: finalJson,
         };
 
         let cache = await this.get(key);
@@ -162,7 +163,7 @@ class RedisCache {
             if (diffTime > cacheOptions.expires) {
               await this.invalidate(key);
             } else {
-              res.set('isCache', true);
+              res.set("isCache", true);
               res.status(resStatus).json(cache.data);
               return;
             }
@@ -189,10 +190,13 @@ class RedisCache {
 
     try {
       const key = req.headers.cache.key;
+      const input = req.headers.cache.input || "";
+
       const json = res.jsonData;
       let value = {
         timestampGeracao: moment().toDate().getTime(),
         status: res.customStatus || 200,
+        input: input,
         data: json
       };
       value = JSON.stringify(value);
