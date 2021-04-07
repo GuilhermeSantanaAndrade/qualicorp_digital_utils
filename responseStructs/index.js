@@ -5,7 +5,7 @@ const responseSuccess = function (res, resData, status = 200) {
     data: resData
   };
   
-  res.customData = data;
+  res.jsonData = data;
   res.customStatus = status;
   return res.status(status).json(data);
 };
@@ -16,7 +16,7 @@ const responseError = function (res, err, status = 500) {
     message: err.message || err
   };
   
-  res.customData = data;
+  res.jsonData = data;
   res.customStatus = status;
   res.status(status).json(data);
 };
