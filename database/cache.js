@@ -67,6 +67,8 @@ class RedisCache {
       try {
         let propertiesToHash = {};
 
+        // * * * INCLUDES * * * //
+
         if (cacheOptions.includes.headers) {
           propertiesToHash.headers = {};
           const allProps = cacheOptions.includes.headers.findIndex(item => item === "*") > -1;
@@ -80,10 +82,6 @@ class RedisCache {
               propertiesToHash.headers[prop] = req.headers[prop];
             }
           }
-        }
-
-        if (cacheOptions.cachePerUser) {
-          propertiesToHash.user = req.user;
         }
 
         if (cacheOptions.includes.query) {
@@ -129,6 +127,70 @@ class RedisCache {
               propertiesToHash.body[prop] = req.body[prop];
             }
           }
+        }
+
+        // * * * EXCLUDES * * * //
+
+        if (cacheOptions.excludes.headers) {
+          const allProps = cacheOptions.excludes.headers.findIndex(item => item === "*") > -1;
+
+          if (allProps) {
+            for (const prop in propertiesToHash.headers) {
+              delete propertiesToHash.headers[prop];
+            }
+          } else {
+            for (const prop of cacheOptions.excludes.headers) {
+              delete propertiesToHash.headers[prop];
+            }
+          }
+        }
+
+        if (cacheOptions.excludes.query) {
+          const allProps = cacheOptions.excludes.query.findIndex(item => item === "*") > -1;
+
+          if (allProps) {
+            for (const prop in propertiesToHash.query) {
+              delete propertiesToHash.query[prop];
+            }
+          } else {
+            for (const prop of cacheOptions.excludes.query) {
+              delete propertiesToHash.query[prop];
+            }
+          }
+        }
+
+        if (cacheOptions.excludes.params) {
+          const allProps = cacheOptions.excludes.params.findIndex(item => item === "*") > -1;
+
+          if (allProps) {
+            for (const prop in propertiesToHash.params) {
+              delete propertiesToHash.params[prop];
+            }
+          } else {
+            for (const prop of cacheOptions.excludes.params) {
+              delete propertiesToHash.params[prop];
+            }
+          }
+        }
+
+        if (cacheOptions.excludes.body) {
+          const allProps = cacheOptions.excludes.body.findIndex(item => item === "*") > -1;
+
+          if (allProps) {
+            for (const prop in propertiesToHash.body) {
+              delete propertiesToHash.body[prop];
+            }
+          } else {
+            for (const prop of cacheOptions.excludes.body) {
+              delete propertiesToHash.body[prop];
+            }
+          }
+        }
+
+        // * * * USER * * * //
+        
+        if (cacheOptions.cachePerUser) {
+          propertiesToHash.user = req.user;
         }
 
         const finalJson = JSON.stringify(propertiesToHash);
