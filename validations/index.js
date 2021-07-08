@@ -9,6 +9,7 @@ module.exports = {
   date: dateValidations,
   documments: documentsValidations,
   email: emailValidations,
+  telefone: telefoneValidations,
   number: numberValidations,
   password: passwordValidations,
   string: stringValidations
